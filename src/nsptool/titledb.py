@@ -1,7 +1,7 @@
 """titledb name lookups.
 
 Downloads blawar/titledb's {REGION}.{lang}.json, reduces it to a small
-titleid->name index cached under ~/.cache/nsp-tool/, and serves lookups from
+titleid->name index cached under ~/.cache/nsptool/, and serves lookups from
 that. The full file (~150 MB) is deleted after indexing.
 """
 

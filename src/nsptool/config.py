@@ -1,6 +1,6 @@
 """Configuration handling for nsptool.
 
-Config lives at ~/.config/nsp-tool/config.toml. On first run (no config file)
+Config lives at ~/.config/nsptool/config.toml. On first run (no config file)
 an interactive wizard asks for the library and keys locations and writes the
 file; every command reads it afterwards.
 """
@@ -11,9 +11,9 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-CONFIG_DIR = Path.home() / ".config" / "nsp-tool"
+CONFIG_DIR = Path.home() / ".config" / "nsptool"
 CONFIG_PATH = CONFIG_DIR / "config.toml"
-CACHE_DIR = Path.home() / ".cache" / "nsp-tool"
+CACHE_DIR = Path.home() / ".cache" / "nsptool"
 
 DEFAULT_TITLEDB_URL = (
     "https://raw.githubusercontent.com/blawar/titledb/master/{region}.{language}.json"

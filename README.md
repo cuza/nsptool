@@ -36,7 +36,7 @@ Requirements:
 
 The first run opens a short wizard asking for your library directory, the
 path to `prod.keys`, and the region tag, saved to
-`~/.config/nsp-tool/config.toml`. Re-run it anytime with
+`~/.config/nsptool/config.toml`. Re-run it anytime with
 `nsptool config --setup`.
 
 ```sh
@@ -84,15 +84,7 @@ uv run ruff check src/ tests/
 uv run ty check src/
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same three checks. Test it locally
-with [act](https://github.com/nektos/act):
-
-```sh
-act push --container-architecture linux/arm64 --pull=false
-```
-
-(`--pull=false` avoids act force-pulling the runner image with stale Docker
-Hub credentials; pull `catthehacker/ubuntu:act-latest` manually once first.)
+CI (`.github/workflows/ci.yml`) runs the same three checks on every push.
 
 ## License
 
