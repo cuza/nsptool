@@ -10,6 +10,29 @@ import sys
 from pathlib import Path
 
 
+def expand_paths(paths: list[Path], extension: str) -> list[Path]:
+    """Expand directories to all contained files with the given extension.
+
+    nsz's own directory handling is not recursive, so a library organized into
+    per-game folders would be skipped entirely; we walk directories ourselves
+    and pass explicit file lists. Files given directly are kept as-is.
+    """
+    files: list[Path] = []
+    for path in paths:
+        if path.is_dir():
+            found = sorted(
+                p
+                for p in path.rglob(f"*{extension}")
+                if p.is_file() and not p.name.startswith("._")
+            )
+            if not found:
+                print(f"warning: no {extension} files under {path}", file=sys.stderr)
+            files.extend(found)
+        else:
+            files.append(path)
+    return files
+
+
 def _nsz_bin() -> str:
     candidate = Path(sys.executable).parent / "nsz"
     if candidate.is_file():
@@ -45,7 +68,10 @@ def compress(
     if out:
         out.mkdir(parents=True, exist_ok=True)
         args += ["-o", str(out)]
-    args += [str(p) for p in paths]
+    files = expand_paths(paths, ".nsp")
+    if not files:
+        return 1
+    args += [str(p) for p in files]
     return run_nsz(args)
 
 
@@ -66,5 +92,8 @@ def decompress(
     if out:
         out.mkdir(parents=True, exist_ok=True)
         args += ["-o", str(out)]
-    args += [str(p) for p in paths]
+    files = expand_paths(paths, ".nsz")
+    if not files:
+        return 1
+    args += [str(p) for p in files]
     return run_nsz(args)

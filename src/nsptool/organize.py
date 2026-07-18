@@ -28,6 +28,7 @@ from .meta import (
     parse_file,
     parse_filename,
 )
+from .term import paint
 
 _ILLEGAL = re.compile(r'[<>:"|?*!]')
 _TRADEMARKS = re.compile(r"[™®©]")  # ™ ® ©
@@ -218,22 +219,32 @@ def summarize_library(library: Path) -> None:
         if entry["dlc"]:
             parts.append(f"{len(entry['dlc'])} DLC")
         total += entry["size"]
-        print(f"{entry['name']} [{base_id}]  ({human(entry['size'])})")
-        print(f"    {' · '.join(parts) if parts else 'empty'}")
+        print(f"{paint(entry['name'] or base_id, 'bold')} [{base_id}]  ({human(entry['size'])})")
+        print(paint(f"    {' · '.join(parts) if parts else 'empty'}", "dim"))
 
     for path in unrecognized:
-        print(f"unrecognized: {path}")
+        print(f"{paint('unrecognized:', 'yellow')} {path}")
     print(f"\n{len(games)} game(s), {human(total)} total")
+
+
+STATUS_COLORS = {
+    "move": "green",
+    "in-place": "dim",
+    "duplicate": "yellow",
+    "conflict": "red",
+    "error": "red",
+}
 
 
 def print_plan(items: list[PlanItem]) -> None:
     order = {"move": 0, "in-place": 1, "duplicate": 2, "conflict": 3, "error": 4}
     for item in sorted(items, key=lambda i: order.get(i.status, 9)):
-        print(f"[{item.status:9}] {item.src.name}")
+        status = paint(f"{item.status:9}", STATUS_COLORS.get(item.status, "bold"))
+        print(f"[{status}] {item.src.name}")
         if item.dest and item.status in ("move", "conflict"):
-            print(f"            -> {item.dest}")
+            print(paint(f"            -> {item.dest}", "dim"))
         if item.note:
-            print(f"            note: {item.note}")
+            print(paint(f"            note: {item.note}", "dim"))
 
     counts: dict[str, int] = {}
     for item in items:
