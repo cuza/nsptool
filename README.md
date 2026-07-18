@@ -65,6 +65,13 @@ nsptool library organize --apply
 # per-game overview of the library (games, versions, DLC counts, sizes)
 nsptool library list
 
+# find redundant files; dry run by default, deletes only with --apply
+nsptool library dedupe                       # exact duplicates
+nsptool library dedupe --prune-old-versions  # + superseded update/DLC versions
+nsptool library dedupe --prefer nsz          # + nsp/nsz doubles, keeping nsz
+nsptool library dedupe --prefer nsp          # + nsp/nsz doubles, keeping nsp
+nsptool library dedupe --apply               # actually delete
+
 # NSP <-> NSZ (verified by default)
 nsptool compress "Game [0100...][v0] [US].nsp" --rm-source
 nsptool decompress "Game [0100...][v0] [US].nsz" -o ./out

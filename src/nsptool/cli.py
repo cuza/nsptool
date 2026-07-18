@@ -111,6 +111,33 @@ def cmd_library_organize(cfg, args) -> int:
     return _run_library_plan(cfg, cfg.library, args.apply, copy=False, fast=args.fast)
 
 
+def cmd_library_dedupe(cfg, args) -> int:
+    from . import dedupe
+
+    if args.library:
+        cfg.library = Path(args.library).expanduser()
+    if not cfg.library.is_dir():
+        print(f"error: library not found: {cfg.library}", file=sys.stderr)
+        return 1
+
+    items = dedupe.plan(cfg, prune_old_versions=args.prune_old_versions, prefer=args.prefer)
+    dedupe.print_plan(items)
+
+    deletable = [i for i in items if i.status == "delete"]
+    if not args.apply:
+        if deletable:
+            print("\nDry run. Re-run with --apply to delete these files.")
+        return 0
+    if not deletable:
+        print("\nNothing to delete.")
+        return 0
+
+    print()
+    removed = dedupe.apply(items)
+    print(f"\nDeleted {removed} file(s)")
+    return 0
+
+
 def cmd_library_list(cfg, args) -> int:
     from .organize import summarize_library
 
@@ -203,6 +230,21 @@ def main() -> None:
     p.add_argument("--library", help="Override the library directory from the config")
     p.add_argument("--fast", action="store_true", help="Trust filenames; only decrypt when needed")
     p.set_defaults(func=cmd_library_organize)
+
+    p = libsub.add_parser("dedupe", help="Find (and with --apply delete) redundant library files")
+    p.add_argument("--apply", action="store_true", help="Delete files (default is a dry run)")
+    p.add_argument(
+        "--prune-old-versions",
+        action="store_true",
+        help="Also delete UPDATE/DLC versions superseded by a newer one",
+    )
+    p.add_argument(
+        "--prefer",
+        choices=["nsp", "nsz"],
+        help="Resolve titles existing as both nsp and nsz by keeping this format",
+    )
+    p.add_argument("--library", help="Override the library directory from the config")
+    p.set_defaults(func=cmd_library_dedupe)
 
     p = libsub.add_parser("list", help="Show the library contents per game")
     p.add_argument("--library", help="Override the library directory from the config")
