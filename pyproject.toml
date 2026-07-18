@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nsptool"
+version = "0.1.0"
+description = "Organize a Nintendo Switch NSP/NSZ library and convert between NSP and NSZ"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "cuza", email = "dave@cuza.dev" }]
+keywords = ["nintendo", "switch", "nsp", "nsz", "library", "organizer"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Archiving",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "nsz>=4.6.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/cuza/nsptool"
+Repository = "https://github.com/cuza/nsptool"
+Issues = "https://github.com/cuza/nsptool/issues"
+
+[project.scripts]
+nsptool = "nsptool.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff",
+    "ty",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
