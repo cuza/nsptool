@@ -72,6 +72,12 @@ nsptool library dedupe --prefer nsz          # + nsp/nsz doubles, keeping nsz
 nsptool library dedupe --prefer nsp          # + nsp/nsz doubles, keeping nsp
 nsptool library dedupe --apply               # actually delete
 
+# validate files: quick structural check, or full NCA hash verification
+nsptool verify                   # whole library, quick (seconds)
+nsptool verify ~/Downloads/incoming
+nsptool verify --full            # hash everything via nsz; results are cached
+nsptool verify --full --recheck  # ignore the cache and re-hash
+
 # NSP <-> NSZ (verified by default)
 nsptool compress "Game [0100...][v0] [US].nsp" --rm-source
 nsptool decompress "Game [0100...][v0] [US].nsz" -o ./out

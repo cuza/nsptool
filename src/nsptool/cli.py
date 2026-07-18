@@ -150,6 +150,43 @@ def cmd_library_list(cfg, args) -> int:
     return 0
 
 
+def cmd_verify(cfg, args) -> int:
+    _bootstrap_keys(cfg)
+    from . import verify as verify_mod
+    from .meta import find_game_files
+    from .term import term
+
+    roots = [Path(p).expanduser() for p in args.paths] or [cfg.library]
+    files: list[Path] = []
+    for root in roots:
+        files.extend(find_game_files(root))
+    if not files:
+        print("No .nsp/.nsz files found.", file=sys.stderr)
+        return 1
+
+    cache = verify_mod.Cache() if args.full and not args.recheck else None
+    failed = 0
+    for path in files:
+        if args.full:
+            result = (cache.lookup(path) if cache else None) or verify_mod.verify_full(path)
+            if cache and not result.cached:
+                cache.store(result)
+        else:
+            result = verify_mod.verify_structure(path)
+
+        if result.ok:
+            suffix = term.dim(" (cached)") if result.cached else ""
+            print(f"[{term.green(' OK ')}] {path.name}{suffix}")
+        else:
+            failed += 1
+            print(f"[{term.red('FAIL')}] {path.name}")
+            print(term.dim(f"       {result.detail}"))
+
+    verdict = "all valid" if not failed else f"{failed} FAILED"
+    print(f"\n{len(files)} file(s): {verdict}")
+    return 1 if failed else 0
+
+
 def cmd_compress(cfg, args) -> int:
     _bootstrap_keys(cfg)
     from .convert import compress
@@ -249,6 +286,12 @@ def main() -> None:
     p = libsub.add_parser("list", help="Show the library contents per game")
     p.add_argument("--library", help="Override the library directory from the config")
     p.set_defaults(func=cmd_library_list)
+
+    p = sub.add_parser("verify", help="Validate NSP/NSZ files (default: whole library)")
+    p.add_argument("paths", nargs="*", help="Files or directories (default: the library)")
+    p.add_argument("--full", action="store_true", help="Hash every NCA via nsz (slow, thorough)")
+    p.add_argument("--recheck", action="store_true", help="Ignore cached --full results")
+    p.set_defaults(func=cmd_verify)
 
     p = sub.add_parser("compress", help="Convert NSP -> NSZ (via nsz)")
     p.add_argument("paths", nargs="+", help="NSP files or directories")
