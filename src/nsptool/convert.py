@@ -9,6 +9,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from .meta import find_game_files
+
 
 def expand_paths(paths: list[Path], extension: str) -> list[Path]:
     """Expand directories to all contained files with the given extension.
@@ -20,11 +22,7 @@ def expand_paths(paths: list[Path], extension: str) -> list[Path]:
     files: list[Path] = []
     for path in paths:
         if path.is_dir():
-            found = sorted(
-                p
-                for p in path.rglob(f"*{extension}")
-                if p.is_file() and not p.name.startswith("._")
-            )
+            found = find_game_files(path, {extension})
             if not found:
                 print(f"warning: no {extension} files under {path}", file=sys.stderr)
             files.extend(found)

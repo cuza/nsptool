@@ -28,7 +28,7 @@ from .meta import (
     parse_file,
     parse_filename,
 )
-from .term import paint
+from .term import term
 
 _ILLEGAL = re.compile(r'[<>:"|?*!]')
 _TRADEMARKS = re.compile(r"[™®©]")  # ™ ® ©
@@ -219,32 +219,32 @@ def summarize_library(library: Path) -> None:
         if entry["dlc"]:
             parts.append(f"{len(entry['dlc'])} DLC")
         total += entry["size"]
-        print(f"{paint(entry['name'] or base_id, 'bold')} [{base_id}]  ({human(entry['size'])})")
-        print(paint(f"    {' · '.join(parts) if parts else 'empty'}", "dim"))
+        print(f"{term.bold(entry['name'] or base_id)} [{base_id}]  ({human(entry['size'])})")
+        print(term.dim(f"    {' · '.join(parts) if parts else 'empty'}"))
 
     for path in unrecognized:
-        print(f"{paint('unrecognized:', 'yellow')} {path}")
+        print(f"{term.yellow('unrecognized:')} {path}")
     print(f"\n{len(games)} game(s), {human(total)} total")
 
 
-STATUS_COLORS = {
-    "move": "green",
-    "in-place": "dim",
-    "duplicate": "yellow",
-    "conflict": "red",
-    "error": "red",
+STATUS_STYLES = {
+    "move": term.green,
+    "in-place": term.dim,
+    "duplicate": term.yellow,
+    "conflict": term.red,
+    "error": term.red,
 }
 
 
 def print_plan(items: list[PlanItem]) -> None:
     order = {"move": 0, "in-place": 1, "duplicate": 2, "conflict": 3, "error": 4}
     for item in sorted(items, key=lambda i: order.get(i.status, 9)):
-        status = paint(f"{item.status:9}", STATUS_COLORS.get(item.status, "bold"))
-        print(f"[{status}] {item.src.name}")
+        style = STATUS_STYLES.get(item.status, term.bold)
+        print(f"[{style(f'{item.status:9}')}] {item.src.name}")
         if item.dest and item.status in ("move", "conflict"):
-            print(paint(f"            -> {item.dest}", "dim"))
+            print(term.dim(f"            -> {item.dest}"))
         if item.note:
-            print(paint(f"            note: {item.note}", "dim"))
+            print(term.dim(f"            note: {item.note}"))
 
     counts: dict[str, int] = {}
     for item in items:

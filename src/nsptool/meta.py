@@ -146,11 +146,12 @@ def parse_file(path: Path, fast: bool = False) -> TitleMeta:
         raise
 
 
-def find_game_files(root: Path) -> list[Path]:
+def find_game_files(root: Path, extensions: set[str] = GAME_EXTENSIONS) -> list[Path]:
+    """All files under root with one of the extensions, skipping macOS ._ files."""
     if root.is_file():
-        return [root] if root.suffix.lower() in GAME_EXTENSIONS else []
+        return [root] if root.suffix.lower() in extensions else []
     return sorted(
         p
         for p in root.rglob("*")
-        if p.is_file() and p.suffix.lower() in GAME_EXTENSIONS and not p.name.startswith("._")
+        if p.is_file() and p.suffix.lower() in extensions and not p.name.startswith("._")
     )

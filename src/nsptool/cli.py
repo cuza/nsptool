@@ -46,18 +46,18 @@ def cmd_scan(cfg, args) -> int:
         print("No .nsp/.nsz files found.", file=sys.stderr)
         return 1
 
-    from .term import paint
+    from .term import term
 
-    type_colors = {"BASE": "green", "UPDATE": "blue", "DLC": "magenta"}
+    type_styles = {"BASE": term.green, "UPDATE": term.blue, "DLC": term.magenta}
     for path in files:
         try:
             meta = parse_file(path, fast=args.fast)
         except Exception as e:
-            print(f"{paint('ERROR ', 'red')} {path.name}: {e}")
+            print(f"{term.red('ERROR ')} {path.name}: {e}")
             continue
         name = titledb.lookup(cfg, meta.title_id) or titledb.lookup(cfg, meta.base_id) or "?"
-        warn = paint(f"  ({meta.warning})", "yellow") if meta.warning else ""
-        ttype = paint(f"{meta.title_type.value:6}", type_colors[meta.title_type.value])
+        warn = term.yellow(f"  ({meta.warning})") if meta.warning else ""
+        ttype = type_styles[meta.title_type.value](f"{meta.title_type.value:6}")
         print(f"{ttype} {meta.title_id} v{meta.version:<10} {name}  [{path.name}]{warn}")
     return 0
 
