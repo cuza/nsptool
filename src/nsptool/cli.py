@@ -9,8 +9,9 @@ from . import __version__
 from .config import CONFIG_PATH, load_config
 from .keys import ensure_keys, highest_master_key
 
-# nsz 4.6 uses pre-3.12 escape sequences; not our warning to surface.
-warnings.filterwarnings("ignore", category=SyntaxWarning, module=r"nsz(\.|$)")
+# nsz 4.6 uses pre-3.12 escape sequences; not our warning to surface. On first
+# import the warning's "module" is the source file path, so match that too.
+warnings.filterwarnings("ignore", category=SyntaxWarning, module=r".*nsz.*")
 
 # Titles released after ~2021 need master keys well past this; used only to warn.
 MASTER_KEY_WARN_THRESHOLD = 0x0F

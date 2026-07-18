@@ -127,6 +127,7 @@ def plan(cfg: Config, source: Path, fast: bool = False) -> list[PlanItem]:
 
     library_index = build_library_index(cfg.library)
     items: list[PlanItem] = []
+    planned_dests: dict[str, Path] = {}
 
     for src in files:
         try:
@@ -157,7 +158,14 @@ def plan(cfg: Config, source: Path, fast: bool = False) -> list[PlanItem]:
         if dest.exists():
             items.append(PlanItem(src, meta, dest, "conflict", "destination exists"))
             continue
+        earlier = planned_dests.get(nfc(str(dest)))
+        if earlier is not None:
+            items.append(
+                PlanItem(src, meta, dest, "duplicate", f"same destination as {earlier}")
+            )
+            continue
 
+        planned_dests[nfc(str(dest))] = src
         items.append(PlanItem(src, meta, dest, "move", note))
 
     return items

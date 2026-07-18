@@ -152,6 +152,22 @@ def test_plan_detects_duplicate_and_in_place(cfg, tmp_path):
     assert _plan_statuses(items) == {in_lib.name: "in-place"}
 
 
+def test_plan_flags_same_destination_within_batch(cfg, tmp_path):
+    staging = tmp_path / "staging"
+    (staging / "a").mkdir(parents=True)
+    (staging / "b").mkdir()
+    first = staging / "a" / "Catherine Full Body [0100BF00112C0000][v0].nsp"
+    second = staging / "b" / "Catherine Full Body [0100BF00112C0000][v0].nsp"
+    first.touch()
+    second.touch()
+
+    items = plan(cfg, staging, fast=True)
+    statuses = sorted(item.status for item in items)
+    assert statuses == ["duplicate", "move"]
+    dup = next(item for item in items if item.status == "duplicate")
+    assert "same destination" in dup.note
+
+
 def test_plan_and_apply_move(cfg, tmp_path):
     staging = tmp_path / "staging"
     staging.mkdir()
