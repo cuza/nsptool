@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nsptool"
-version = "0.1.0"
+version = "0.1.1"
 description = "Organize a Nintendo Switch NSP/NSZ library and convert between NSP and NSZ"
 readme = "README.md"
 license = "MIT"
